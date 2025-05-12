@@ -1,0 +1,26 @@
+---
+- name: Install vim et check /etc/passwd
+  hosts: webservers
+  remote_user: root
+
+  tasks:
+    - name: Install vim
+      ansible.builtin.package:
+        name: vim
+        state: present
+        update_cache: true
+
+    - name: Check /etc/passwd
+      ansible.builtin.stat:
+        path: /etc/passwd
+      register: result
+
+    - name: Si /etc/passwd existe
+      ansible.builtin.debug:
+        msg: "/etc/passwd existe."
+      when: result.stat.exists
+
+    - name: Si /etc/passwd est absent
+      ansible.builtin.debug:
+        msg: "/etc/passwd n'existe pas."
+      when: not result.stat.exists
