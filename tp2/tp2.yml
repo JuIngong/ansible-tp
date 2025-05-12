@@ -1,0 +1,39 @@
+---
+- name: Install package conditionnel
+  hosts: webservers
+  remote_user: root
+
+  tasks:
+    - name: Install apache2 & mysql on node 1 et 2
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - apache2
+        - mysql-server
+      when: ansible_hostname == "node01" or ansible_hostname == "node02"
+
+    - name: Install git, nginx & cowsay on node 3
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - git
+        - nginx
+        - cowsay
+      when: ansible_hostname == "node03"
+
+    - name: Install ufw
+      ansible.builtin.package:
+        name: ufw
+        state: present
+        update_cache: true
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Allow firewall
+      community.general.ufw:
+        state: enabled
+        policy: allow
+      when: ansible_distribution == "Ubuntu"
