@@ -2,28 +2,24 @@
 - name: Install package conditionnel
   hosts: webservers
   remote_user: root
+  vars:
+    packages_per_host:
+      node01: [apache2, mysql-server]
+      node02: [apache2, mysql-server]
+      node03: [git, nginx, cowsay]
 
   tasks:
-    - name: Install apache2 & mysql on node 1 et 2
-      ansible.builtin.package:
-        name: "{{ item }}"
-        state: present
-        update_cache: true
-      loop:
-        - apache2
-        - mysql-server
-      when: ansible_hostname == "node01" or ansible_hostname == "node02"
+    - name: Dynamicaly define package
+      ansible.builtin.set_fact:
+        packages_to_install: "{{ packages_per_host.get(ansible_hostname, []) }}"
 
-    - name: Install git, nginx & cowsay on node 3
+    - name: Install defined package
       ansible.builtin.package:
         name: "{{ item }}"
         state: present
         update_cache: true
-      loop:
-        - git
-        - nginx
-        - cowsay
-      when: ansible_hostname == "node03"
+      loop: "{{ packages_to_install }}"
+      when: packages_to_install | length > 0
 
     - name: Install ufw
       ansible.builtin.package:
@@ -72,7 +68,7 @@
       ansible.builtin.debug:
         msg: "{{ server_response.content }}"
 
-    - name: Déterminer le contenu à écrire dans /etc/jour
+    - name: Choose content for /etc/jour
       ansible.builtin.set_fact:
         contenu_jour: >-
           {% if ansible_date_time.day | int % 2 == 0 and ansible_date_time.hour | int >= 12 %}
