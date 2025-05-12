@@ -29,3 +29,13 @@
     - name: Show response
       ansible.builtin.debug:
         msg: "Apache répond avec le code {{ apache_response.status }}"
+
+    - name: Call apache with ip on port 80
+      ansible.builtin.uri:
+        url: http://{{ inventory_hostname }}
+        return_content: true
+      register: apache_response2
+
+    - name: Show response
+      ansible.builtin.debug:
+        msg: "Apache {{ inventory_hostname }} répond avec le code {{ apache_response2.status }}"
