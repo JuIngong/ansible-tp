@@ -1,0 +1,31 @@
+---
+- name: Install apache2 et check if running
+  hosts: webservers
+  remote_user: root
+
+  tasks:
+    - name: Install apache2
+      ansible.builtin.package:
+        name: apache2
+        state: present
+        update_cache: true
+
+    - name: Allow firewall
+      community.general.ufw:
+        state: enabled
+        policy: allow
+
+    - name: Check if apache up
+      ansible.builtin.systemd_service:
+        state: started
+        name: apache2
+
+    - name: Call apache on port 80
+      ansible.builtin.uri:
+        url: http://localhost
+        return_content: true
+      register: apache_response
+
+    - name: Show response
+      ansible.builtin.debug:
+        msg: "Apache répond avec le code {{ apache_response.status }}"
