@@ -1,0 +1,7 @@
+---
+- name: Install docker using role geerlingguy
+  hosts: webservers
+  remote_user: root
+
+  roles:
+    - geerlingguy.docker
