@@ -18,6 +18,7 @@
 
     - name: Import tp2 playbook
       ansible.builtin.include_tasks: tp2.yml
+      tags: tp2
 
     - name: Inclure geerlingguy.apache & mysql depending on host
       ansible.builtin.include_role:
@@ -36,7 +37,7 @@
 
     - name: Try call server
       ansible.builtin.uri:
-        url: http://localhost
+        url: http://127.0.0.1:88
         return_content: true
       register: server_response
       when: ansible_hostname in ["node02", "node03"]
