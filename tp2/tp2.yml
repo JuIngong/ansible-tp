@@ -2,24 +2,15 @@
 - name: Install package conditionnel
   hosts: webservers
   remote_user: root
-  vars:
-    packages_per_host:
-      node01: [apache2, mysql-server]
-      node02: [apache2, mysql-server]
-      node03: [git, nginx, cowsay]
 
   tasks:
-    - name: Dynamicaly define package
-      ansible.builtin.set_fact:
-        packages_to_install: "{{ packages_per_host.get(ansible_hostname, []) }}"
-
     - name: Install defined package
       ansible.builtin.package:
         name: "{{ item }}"
         state: present
         update_cache: true
       loop: "{{ packages_to_install }}"
-      when: packages_to_install | length > 0
+      when: packages_to_install is defined and packages_to_install | length > 0
 
     - name: Install ufw
       ansible.builtin.package:
