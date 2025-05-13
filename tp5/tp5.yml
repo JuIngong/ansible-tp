@@ -1,0 +1,21 @@
+---
+- name: Using vault and mysql
+  hosts: distant
+  remote_user: root
+  vars_files:
+    - vars/main.yml
+    - vars/secret.yml
+
+  tasks:
+    - name: Inclure geerlingguy.mysql with create db and user
+      ansible.builtin.include_role:
+        name: geerlingguy.mysql
+
+    - name: Set the value of db
+      ansible.builtin.set_fact:
+        db_name: "{{ (ansible_hostname[-2:] | int) * 3 }}"
+
+    - name: Create mysql db
+      community.mysql.mysql_db:
+        name: "db0{{ db_name }}"
+        state: present

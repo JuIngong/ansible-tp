@@ -1,0 +1,7 @@
+---
+mysql_databases:
+  - name: db01
+mysql_users:
+  - name: user01
+    password: "{{ user01_password }}"
+    priv: "db01.*:ALL"
