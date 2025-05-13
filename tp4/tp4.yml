@@ -17,7 +17,7 @@
         - mysql-server
 
     - name: Import tp2 playbook
-      ansible.builtin.include_tasks: tp2.yml
+      ansible.builtin.import_tasks: tp2.yml
       tags: tp2
 
     - name: Inclure geerlingguy.apache & mysql depending on host
