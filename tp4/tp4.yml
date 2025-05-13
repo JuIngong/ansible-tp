@@ -1,0 +1,47 @@
+---
+- name: Install package conditionnel
+  hosts: webservers
+  remote_user: root
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - name: Desinstall packages git, nginx ...
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - nginx
+        - cowsay
+        - apache2
+        - mysql-server
+
+    - name: Import tp2 playbook
+      ansible.builtin.include_tasks: tp2.yml
+
+    - name: Inclure geerlingguy.apache & mysql depending on host
+      ansible.builtin.include_role:
+        name: "{{ item }}"
+      loop:
+        - geerlingguy.apache
+        - geerlingguy.mysql
+      when: ansible_hostname in ["node02", "node03"]
+
+    - name: Change welcome message
+      ansible.builtin.copy:
+        content: "Bienvenue sur le {{ ansible_hostname }}"
+        dest: /var/www/html/index.html
+        mode: '0644'
+      when: ansible_hostname in ["node02", "node03"]
+
+    - name: Try call server
+      ansible.builtin.uri:
+        url: http://localhost
+        return_content: true
+      register: server_response
+      when: ansible_hostname in ["node02", "node03"]
+
+    - name: Show response
+      ansible.builtin.debug:
+        msg: "{{ server_response.content }}"
+      when: ansible_hostname in ["node02", "node03"]
